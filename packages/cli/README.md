@@ -261,6 +261,7 @@ Only `LOCAL_CI_*`-prefixed keys from `.env.local-ci` are applied to the CLI proc
 | `LOCAL_CI_DOCKER_HOST_GATEWAY`                | `host-gateway`                      | Override the default `host-gateway` token or IP for the automatic host mapping.                                                                                                                                   |
 | `LOCAL_CI_DOCKER_DISABLE_DEFAULT_EXTRA_HOSTS` | unset                               | Set to `1` to disable the default `host.docker.internal` mapping.                                                                                                                                                 |
 | `LOCAL_CI_DOCKER_BRIDGE_GATEWAY`              | auto-detected                       | Fallback gateway IP when Local CI runs inside Docker and cannot detect its container IP.                                                                                                                          |
+| `LOCAL_CI_SKIP_GLOBAL_CLEANUP`                 | unset                               | Set to `1` when sharing a Docker daemon to skip startup-wide orphaned-container, network, and volume cleanup. Cleanup of the current run's own resources remains enabled. |
 
 ---
 
