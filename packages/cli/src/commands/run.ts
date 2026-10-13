@@ -10,7 +10,7 @@ import { parse as parseYaml } from "yaml";
 
 import { config, loadMachineSecrets, resolveMachineEnvPath, resolveRepoSlug } from "../config.ts";
 import { loadVarFiles } from "../workflow-vars.ts";
-import { getNextLogNum } from "../output/logger.ts";
+import { getNextLogNum, runnerBaseName } from "../output/logger.ts";
 import {
   setWorkingDirectory,
   DEFAULT_WORKING_DIR,
@@ -725,7 +725,7 @@ async function runPrewarmThrough(options: {
         owner: { login: owner },
         default_branch: "main",
       },
-      runnerName: `local-ci-prewarm-${getNextLogNum("local-ci")}-j1`,
+      runnerName: `${runnerBaseName(getNextLogNum("local-ci"), process.env.LOCAL_CI_RUN_NAMESPACE, "local-ci-prewarm")}-j1`,
       steps,
       services: await parseWorkflowServices(workflowPath, options.spec.jobId, {
         ...workflowExpressionContext,
@@ -1515,6 +1515,7 @@ async function handleWorkflow(options: {
 
   // ── Collect expanded jobs (with matrix expansion) ─────────────────────────
   const baseRunNum = options.baseRunNum ?? getNextLogNum("local-ci");
+  const runnerBase = runnerBaseName(baseRunNum);
   let globalIdx = 0;
   const nextRunnerName = (matrixContext?: Record<string, string>): string => {
     const idx = globalIdx++;
@@ -1523,7 +1524,7 @@ async function handleWorkflow(options: {
       const shardIdx = parseInt(matrixContext.__job_index ?? "0", 10) + 1;
       suffix += `-m${shardIdx}`;
     }
-    return `local-ci-${baseRunNum}${suffix}`;
+    return `${runnerBase}${suffix}`;
   };
 
   const expandedJobs = await expandJobs(expandedEntries, noMatrix, nextRunnerName);
@@ -1539,7 +1540,7 @@ async function handleWorkflow(options: {
         const shardIdx = parseInt(ej.matrixContext.__job_index ?? "0", 10) + 1;
         suffix += `-m${shardIdx}`;
       }
-      const runnerId = `local-ci-${options.baseRunNum}${suffix}`;
+      const runnerId = `${runnerBase}${suffix}`;
       const storeWfPath = ej.callerJobId ? workflowPath : ej.workflowPath;
       store.addJob(storeWfPath, ej.taskName, runnerId, {
         matrixValues: ej.matrixContext
@@ -1736,7 +1737,7 @@ async function handleWorkflow(options: {
       const shardIdx = parseInt(ej.matrixContext.__job_index ?? "0", 10) + 1;
       suffix += `-m${shardIdx}`;
     }
-    const derivedRunnerName = `local-ci-${baseRunNum}${suffix}`;
+    const derivedRunnerName = `${runnerBase}${suffix}`;
 
     return {
       deliveryId: `run-${Date.now()}`,

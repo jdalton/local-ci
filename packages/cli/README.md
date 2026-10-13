@@ -250,6 +250,7 @@ Only `LOCAL_CI_*`-prefixed keys from `.env.local-ci` are applied to the CLI proc
 | `DEBUG`                    | unset                           | Enable verbose debug logging. See [Debugging](#debugging) for supported namespaces.                                                                                                                                                                                                          |
 | `LOCAL_CI_GITHUB_TOKEN`    | unset                           | GitHub token for fetching remote reusable workflows. Alternative to the `--github-token` CLI flag.                                                                                                                                                                                           |
 | `LOCAL_CI_PREWARM_THROUGH` | unset                           | Persistent default for `--prewarm-through <workflow:job:step-id>`. The CLI flag wins when both are set.                                                                                                                                                                                      |
+| `LOCAL_CI_RUN_NAMESPACE`   | unset                           | Add a unique 1–16-character lowercase namespace (letters, digits, `_`, `-`) to runner names when independent checkouts share one Docker daemon. Unset preserves existing names.                                                                                                                |
 
 ### Docker
 
