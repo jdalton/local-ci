@@ -1560,6 +1560,7 @@ async function handleWorkflow(options: {
   //   https://github.com/redwoodjs/local-ci/issues/258  (real macOS support)
   const skippedResult = (ej: ExpandedJob): JobResult => ({
     name: `local-ci-skipped-${ej.taskName}`,
+    skipped: true,
     workflow: path.basename(ej.workflowPath),
     taskId: ej.taskName,
     succeeded: true,
