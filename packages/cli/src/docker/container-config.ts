@@ -188,6 +188,12 @@ export function buildContainerCmd(opts: ContainerCmdOpts): string[] {
   const cmdScript = [
     `MAYBE_SUDO() { if command -v sudo >/dev/null 2>&1; then sudo -n "$@"; else "$@"; fi; }`,
     `BOOT_T0=$(date +%s%3N); T0=$BOOT_T0`,
+    // The Actions runner is a glibc/.NET binary. Alpine uses musl, so install
+    // its compatibility layer before starting the injected runner listener.
+    // Job containers usually run as root; MAYBE_SUDO also supports images that
+    // provide passwordless sudo. If neither is available, fail here with the
+    // apk error instead of the less useful "Runner.Listener: required file not found".
+    `if [ -f /etc/alpine-release ] && command -v apk >/dev/null 2>&1 && ! apk info -e gcompat >/dev/null 2>&1; then echo "[local-ci:boot] Alpine detected; installing gcompat for the Actions runner"; MAYBE_SUDO apk add --no-cache gcompat; fi`,
     // chmod is done host-side in workspacePrepPromise — skip it here
     `if [ -f /usr/bin/git ]; then MAYBE_SUDO mv /usr/bin/git /usr/bin/git.real 2>/dev/null; MAYBE_SUDO cp -p /tmp/local-ci-shims/git /usr/bin/git 2>/dev/null; MAYBE_SUDO chmod +x /usr/bin/git 2>/dev/null; fi`,
     T("git-shim"),

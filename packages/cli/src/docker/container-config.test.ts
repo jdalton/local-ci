@@ -191,6 +191,25 @@ describe("buildContainerCmd", () => {
     expect(cmd).toHaveLength(2);
   });
 
+  it("installs gcompat in Alpine containers before starting the .NET runner (#400)", async () => {
+    const { buildContainerCmd } = await import("./container-config.ts");
+    const cmd = buildContainerCmd({
+      svcPortForwardSnippet: "",
+      dtuPort: "3000",
+      dtuHost: "localhost",
+      useDirectContainer: true,
+      containerName: "test-runner",
+    });
+
+    expect(cmd[1]).toContain("/etc/alpine-release");
+    expect(cmd[1]).toContain("command -v apk");
+    expect(cmd[1]).toContain("! apk info -e gcompat");
+    expect(cmd[1]).toContain("apk add --no-cache gcompat");
+    expect(cmd[1].indexOf("apk add --no-cache gcompat")).toBeLessThan(
+      cmd[1].indexOf("./run.sh --once"),
+    );
+  });
+
   it("includes service port forwarding snippet", async () => {
     const { buildContainerCmd } = await import("./container-config.ts");
     const cmd = buildContainerCmd({
